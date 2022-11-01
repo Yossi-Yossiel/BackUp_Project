@@ -1,4 +1,5 @@
 import compression
 
 def main():
-    compression.compressfile("shalom.txt","archie")
+    path =
+    compression.compressfile("shalom.txt", "archie")
