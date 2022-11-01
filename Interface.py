@@ -20,11 +20,11 @@ def button():
     print("returned")
     B.pack()
 
+def interface():
+    root = Tk()
+    root.withdraw()
+    top = tkinter.Tk()
 
-root = Tk()
-root.withdraw()
-top = tkinter.Tk()
+    button()
 
-button()
-
-top.mainloop()
+    top.mainloop()
