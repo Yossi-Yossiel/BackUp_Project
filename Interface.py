@@ -1,10 +1,9 @@
+import os
 import threading
 from tkinter import filedialog
 from tkinter import *
-import tkinter
-import tkinter.messagebox
 
-eve = threading.Event
+eve = threading.Event()
 root = Tk()
 path = ""
 
@@ -20,22 +19,23 @@ def select_folder():
     path = ""
     path = filedialog.askdirectory()
     var = "selected directory: " + str(path)
+    print(var)
     eve.set
     print(path)
 
 
 def button(top):
-    B = tkinter.Button(top, text="select a folder", command=select_folder, width=10, height=1)
-    while not eve.is_set:
-        continue
-    print("ee")
+    B = Button(top, text="select a folder", command=select_folder, width=10, height=1)
     B.pack()
+    print("hello")
+
 
 
 def interface():
     root.withdraw()
-    top = tkinter.Tk()
+    top = Tk()
     button(top)
-    print(path)
     top.mainloop()
-interface()
+    while not eve.is_set():
+        continue
+    return path
