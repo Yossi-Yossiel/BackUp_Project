@@ -9,5 +9,4 @@ def compressfile(filepath: str, archname: str):
 
 def extractfile(filepath : str):
     with py7zr.SevenZipFile(filepath, 'r') as archive:
-
         archive.extractall(path="C:\\Users\\Aviv Avichail\\PycharmProjects\\BackUp_Project\\tmp")
