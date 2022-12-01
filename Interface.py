@@ -1,47 +1,34 @@
-from threading import Thread
+import os
+import shutil
 import threading
-from tkinter import filedialog
+from threading import Thread
 from tkinter import *
-import compression
+from tkinter import filedialog
+import py7zr
 
 
-def create_inter():
-    global is_backup
-    is_backup = False
-    global root
-    root = Tk()
-    global win_width, win_height, scr_width, scr_height, center_x, center_y
-    win_width = 600
-    win_height = 400
-    scr_width = root.winfo_screenwidth()
-    scr_height = root.winfo_screenheight()
-    center_x = int(scr_width / 2 - win_width / 2)
-    center_y = int(scr_height / 2 - win_height / 2)
-    global eve
-    eve = threading.Event()
-    global path
-    path = ""
-    global t
-    t = Thread(target=check_folder)
-    global b_list
-    b_list = []
-    root.title("back up your files")
-    root.iconbitmap('assets/cloud.ico')
-    root.configure(width=win_width, height=win_height)
-    root.geometry(f'{win_width}x{win_height}+{center_x}+{center_y}')
-    button_text = "Select a folder"
-    button_x = 100
-    button_y = 100
-    button(button_text, button_x, button_y)
-    root.mainloop()
+def check_backup_button():
+    while not backup_event:
+        continue
+    compress_file(arch_path, "test")
 
 
-def get_path():
-    return path
+def copy_folder(src_folder: str):
+    print(src_folder)
+    dst_folder = "C:/Users/Aviv Avichail/PycharmProjects/BackUp_Project/tmp/backup_folders/1"
+    shutil.copytree(src_folder, dst_folder)
+    index = dst_folder.find("/tmp")
+    return f".{dst_folder[index::]}"
 
 
 def backup_folder():
-    compression.compressfile(path, "test")
+    print("dodush")
+    global arch_path
+    arch_path = copy_folder(path)
+    backup_event.set()
+    global t2
+    t2 = threading.Thread(target=check_backup_button)
+    t2.start()
 
 
 def check_folder():
@@ -52,25 +39,13 @@ def check_folder():
     if 'lbl' in globals():
         text = "Selected directory:" + path
         lbl.config(text=text)
-    else:
-        text = "Selected Directory: " + path
-        label_set(text)
         button_text = "backup"
-        button_x = 150
-        button_y = 40
-        button(button_text, button_x, button_y)
-
-
-def label_set(text: str):
-    print("got here")
-    global lbl
-    lbl = Label(root, text=text)
-    lbl.pack()
-    root.update()
+        button(button_text)
 
 
 def select_folder():
     eve.clear()
+    global t
     t = Thread(target=check_folder)
     t.start()
     global path
@@ -80,7 +55,7 @@ def select_folder():
     eve.set()
 
 
-def button(button_text: str, button_x: int, button_y: int):
+def button(button_text: str):
     button_height = 1
     button_width = 10
     if 'is_backup' in globals():
@@ -97,4 +72,60 @@ def button(button_text: str, button_x: int, button_y: int):
     return
 
 
+def compress_file(filepath: str, arch_name: str):
+    sevenzip_filepath = "C:\\Users\\Aviv Avichail\\PycharmProjects\\BackUp_Project\\tmp\\backup_folders\\" +\
+                        arch_name + ".7z"
+    with py7zr.SevenZipFile(sevenzip_filepath, 'w') as archive:
+        archive.writeall(filepath)
+        return arch_path
+
+
+def extract_file(filepath: str):
+    with py7zr.SevenZipFile(filepath, 'r') as archive:
+        archive.extractall(path="C:\\Users\\Aviv Avichail\\PycharmProjects\\BackUp_Project\\tmp")
+
+
+def delete_tmp_folders():
+    folder = "C:/Users/Aviv Avichail/PycharmProjects/BackUp_Project/tmp/backup_folders"
+    for filename in os.listdir(folder):
+        file_path = os.path.join(folder, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print('Failed to delete %s. Reason: %s' % (file_path, e))
+
+
+def create_inter():
+    delete_tmp_folders()
+    root.title("back up your files")
+    root.iconbitmap('assets/cloud.ico')
+    root.configure(width=win_width, height=win_height)
+    root.geometry(f'{win_width}x{win_height}+{center_x}+{center_y}')
+    button_text = "Select a folder"
+    button(button_text)
+    lbl.pack()
+    root.mainloop()
+
+
+arch_path = ""
+backup_event = threading.Event()
+t2 = threading.Thread(target=check_backup_button)
+is_backup = False
+root = Tk()
+lbl = Label(root, text="Selected directory:")
+win_width = 600
+win_height = 400
+scr_width = root.winfo_screenwidth()
+scr_height = root.winfo_screenheight()
+center_x = int(scr_width / 2 - win_width / 2)
+center_y = int(scr_height / 2 - win_height / 2)
+eve = threading.Event()
+path = ""
+t = Thread(target=check_folder)
+b_list = []
+t2.start()
+delete_tmp_folders()
 create_inter()
