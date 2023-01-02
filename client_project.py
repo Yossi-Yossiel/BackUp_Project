@@ -1,21 +1,32 @@
 import os
 import shutil
 import threading
+import time
 from threading import Thread
 from tkinter import *
 from tkinter import filedialog
 import py7zr
 
 
+def send_file
+
+
 def check_backup_button():
-    while not backup_event:
+    while True:
+        if backup_event:
+            break
         continue
-    compress_file(arch_path, "test")
+    start_compress(arch_path, archive_name)
 
 
 def copy_folder(src_folder: str):
     print(src_folder)
-    dst_folder = "C:/Users/Aviv Avichail/PycharmProjects/BackUp_Project/tmp/backup_folders/1"
+    for i in range(10):
+        dst_folder = f"C:/Users/Aviv Avichail/PycharmProjects/BackUp_Project/tmp/backup_folders/{i}"
+        if not os.path.exists(dst_folder):
+            global archive_name
+            archive_name = f"{archive_name}{i}"
+            break
     shutil.copytree(src_folder, dst_folder)
     index = dst_folder.find("/tmp")
     return f".{dst_folder[index::]}"
@@ -69,15 +80,21 @@ def button(button_text: str):
     b.pack()
     root.update()
     print("hello")
-    return
 
 
-def compress_file(filepath: str, arch_name: str):
+def start_compress(filepath: str, arch_name: str):
     sevenzip_filepath = "C:\\Users\\Aviv Avichail\\PycharmProjects\\BackUp_Project\\tmp\\backup_folders\\" +\
                         arch_name + ".7z"
+    t3 = threading.Thread(target=compress_folder, args=(sevenzip_filepath,filepath))
+    t3.run()
+
+
+def compress_folder(sevenzip_filepath: str, filepath: str):
+    print("start")
     with py7zr.SevenZipFile(sevenzip_filepath, 'w') as archive:
         archive.writeall(filepath)
         return arch_path
+
 
 
 def extract_file(filepath: str):
@@ -99,7 +116,6 @@ def delete_tmp_folders():
 
 
 def create_inter():
-    delete_tmp_folders()
     root.title("back up your files")
     root.iconbitmap('assets/cloud.ico')
     root.configure(width=win_width, height=win_height)
@@ -110,6 +126,7 @@ def create_inter():
     root.mainloop()
 
 
+archive_name = "test"
 arch_path = ""
 backup_event = threading.Event()
 t2 = threading.Thread(target=check_backup_button)
