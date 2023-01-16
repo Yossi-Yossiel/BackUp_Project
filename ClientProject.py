@@ -1,5 +1,6 @@
 import os
 import shutil
+import socket
 import threading
 import time
 from threading import Thread
@@ -8,7 +9,9 @@ from tkinter import filedialog
 import py7zr
 
 
-def send_file
+def send_file(filepath:str):
+    client_socket.connect(server_tup)
+    client_socket.send()
 
 
 def check_backup_button():
@@ -93,6 +96,7 @@ def compress_folder(sevenzip_filepath: str, filepath: str):
     print("start")
     with py7zr.SevenZipFile(sevenzip_filepath, 'w') as archive:
         archive.writeall(filepath)
+        send_file(sevenzip_filepath)
         return arch_path
 
 
@@ -126,6 +130,8 @@ def create_inter():
     root.mainloop()
 
 
+server_tup = ("127.0.0.1", 5000)
+client_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 archive_name = "test"
 arch_path = ""
 backup_event = threading.Event()
